@@ -11,7 +11,7 @@ forget to update this, so I may have incorporated other functions from Solar
 System Simulation at the time of reading.
 His app is a colorful recreation of our solar system with a different purpose
 and feature set than this one, so make sure to check it out!
-https://github.com/zerot69/Solar-System-Simulation
+https://github.codm/zerot69/Solar-System-Simulation
 """
 
 import pygame
@@ -42,7 +42,6 @@ COLOR_NEPTUNE = (63, 84, 186)
 # COLOR_PALE_BLUE = (0, 191, 255)
 # COLOR_PALE_BLUE = (0, 255, 255)
 COLOR_TAC_GREEN = (89, 255, 66)
-COLOR_PALE_BLUE = (89, 255, 66)
 
 FONT_1 = pygame.font.SysFont("Trebuchet MS", 21)
 FONT_2 = pygame.font.SysFont("Trebuchet MS", 16)
@@ -75,9 +74,7 @@ class Planet:
         self.orbital_speed = orbital_speed
         self.theta = random.uniform(0, 2 * math.pi)
         self.orbital_radius = orbital_radius
-        # print(f"planet {self.name} theta: {self.theta}")
         if str(name) == "0":
-            print("sun")
             self.orbital_radius = 0
             self.x = 400 #WIDTH / 2
             self.y = 400 #HEIGHT / 2
@@ -258,17 +255,14 @@ def random_radius_distribution(n, rmin, rmax, min_space=60):
     radii.append(rmin)
     # loop until the list has n radii
     i = 1
-    print(radii)
     while len(radii) < n:
         r = random.randint(radii[i - 1] + min_space, radii[i - 1] + rmax)
         #                                   80 + 60, 80 + 200 = 140, 2800
-        print(f"radii[i - 1] {radii[i - 1]}, r: {r}")
         radii.append(r)
         i += 1
 
     # return the sorted list
     # radii = sorted(radii)
-    # print(f"radii: {radii}")
     return radii
 
 
@@ -281,37 +275,35 @@ def main():
     print_moons = False
     num_planets = 6
     rmin = (WIDTH / 2  * 0.12)
-    print(f"rmin: {rmin}")
     rmax = (WIDTH / 2 * 0.15)
     min_space = (WIDTH / 2 * 0.1)
-    print(WIDTH/2 * 0.3)
-    print(WIDTH/2 * 0.05)
+    print(f"rmin: {rmin}, rmax: {rmax}, min_space: {min_space}")
     orbit_radii = random_radius_distribution(num_planets, rmin, rmax, min_space)
     max_moons_inner = 2
     max_moons_outer = 5
 
     # make the sun
-    sun = Planet(0, 30, 0, COLOR_PALE_BLUE, 0)
+    sun = Planet(0, 25, 0, COLOR_TAC_GREEN, 0)
     # loop through the number of planets to make
     for i in range(num_planets):
         # make a planet
         if i < 2: # if i is a very inner planet
-            planets.append(Planet(f" {i + 1}", random.randint(2, 10), orbit_radii[i], COLOR_WHITE, random.randint(2, 6)))
+            planets.append(Planet(f" {i + 1}", random.randint(2, 10), orbit_radii[i], COLOR_TAC_GREEN, random.randint(2, 6)))
             num_moons = random.randint(0, 1)
             for j in range(num_moons):
                 # make a moon
-                moons.append(Moon(planets[i], random.randint(3, 4), COLOR_PALE_BLUE, random.randint(1, 5), 10, f"M{j + 1}"))
+                moons.append(Moon(planets[i], random.randint(3, 4), COLOR_TAC_GREEN, random.randint(planets[i].radius + 5, planets[i].radius +20), random.randint(5, 15), f"M{j + 1}"))
         elif 2 <= i < 4: # if i is an inner planet
-            planets.append(Planet(f" {i + 1}", random.randint(2, 20), orbit_radii[i], COLOR_PALE_BLUE, random.randint(2, 6)))
+            planets.append(Planet(f" {i + 1}", random.randint(2, 20), orbit_radii[i], COLOR_TAC_GREEN, random.randint(2, 6)))
             num_moons = random.randint(0, max_moons_inner)
             for j in range(num_moons):
                 # make a moon
-                moons.append(Moon(planets[i], random.randint(2, 4), COLOR_PALE_BLUE, random.randint(5, 20), 10, f"M{j + 1}"))
+                moons.append(Moon(planets[i], random.randint(1, 3), COLOR_TAC_GREEN, random.randint(planets[i].radius + 5, planets[i].radius +20), random.randint(5, 15), f"M{j + 1}"))
         else: # if i is an outer planet
-            planets.append(Planet(f" {i + 1}", random.randint(6, 12), orbit_radii[i], COLOR_PALE_BLUE, random.randint(2, 6)))
+            planets.append(Planet(f" {i + 1}", random.randint(6, 12), orbit_radii[i], COLOR_TAC_GREEN, random.randint(2, 6)))
             num_moons = random.randint(0, max_moons_outer)
             for j in range(num_moons):
-                moons.append(Moon(planets[i], random.randint(1, 4), COLOR_PALE_BLUE, random.randint(20, 50), 10, f"M{j + 1}"))
+                moons.append(Moon(planets[i], random.randint(2, 3), COLOR_TAC_GREEN, random.randint(planets[i].radius + 7, planets[i].radius +25), random.randint(5, 15), f"M{j + 1}"))
         print(f"Planet {i}, radius: {planets[i].radius} orbital radius: {orbit_radii[i]}, num moons: {num_moons}")
     # set the variable running to True
     running = True
@@ -327,16 +319,16 @@ def main():
         screen.fill((0, 0, 0))
 
         # draw the planets
-        sun.draw(screen, print_planets, 0, 0, False, COLOR_PALE_BLUE)
+        sun.draw(screen, print_planets, 0, 0, False, COLOR_TAC_GREEN)
         for planet in planets:
             planet.draw_orbit(screen)
-            planet.draw(screen, print_planets, 0, planet.radius + 10, False, COLOR_PALE_BLUE)
+            planet.draw(screen, print_planets, 0, planet.radius + 10, False, COLOR_TAC_GREEN)
         for moon in moons:
             moon.draw_orbit(screen)
-            moon.draw(screen, print_moons, 0, moon.radius + 10, False, COLOR_PALE_BLUE)
+            moon.draw(screen, print_moons, 0, moon.radius + 10, False, COLOR_TAC_GREEN)
         # print the system name at the top of the screen
         if print_system:
-            text = FONT_1.render(system, True, COLOR_PALE_BLUE)
+            text = FONT_1.render(system, True, COLOR_TAC_GREEN)
             screen.blit(text, (WIDTH / 2 - text.get_width() / 2, 10))
 
         for planet in planets:
@@ -371,6 +363,10 @@ if __name__ == '__main__':
 # TODO: make moons a subclass of planets
 # TODO: make a method of the planet class to add moons using
     # the same random distribution function as the planets
+    # moon radius should be a fraction of the planet radius
+    # moon orbital radius may need to be spaced relative to the moon radius
+# TODO: make orbital velocity a function of orbital radius
+
 # TODO: set autoscale for orbits
 # TODO: add zoom in and out feature from sol_map code
     # when zoomed to a certain level, show some stats or something
@@ -378,10 +374,9 @@ if __name__ == '__main__':
     # zoom in and out, and
 # TODO: set a random list of system names
 
-"""Bobiverse"""
-# TODO: add a class for HEAVEN vessels
-# TODO: set a random list of Bob names
-# TODO: set Bobs to come in system and orbit planets
+# TODO: add a class for vessels
+# TODO: set a random list of names
+# TODO: set vessels to come in system and orbit planets
 # TODO: set a class for autofactories, mines, etc
     # these can be square markers
 # TODO: add a tooltip with text and a line to the object
@@ -389,8 +384,7 @@ if __name__ == '__main__':
 # TODO: add a legend/readout for the system
 # TODO: add system statistics to the readout
 
-""" SWars"""
-# TODO: set up predefined systems from the SWARS universe
+# TODO: set up predefined systems
 # TODO: set up a list of ship names
 # TODO: set jump warnings for ships
     # set to t seconds before arrival, find x(t) and y(t) for planet as initial orbit
