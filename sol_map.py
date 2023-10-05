@@ -65,6 +65,9 @@ class Planet:
                                             y - distance_text.get_height() / 2 - 20 + move_y))
 
     def attraction(self, other):
+        """
+
+        """
         other_x, other_y = other.x, other.y
         distance_x = other_x - self.x
         distance_y = other_y - self.y
@@ -78,13 +81,14 @@ class Planet:
         return force_x, force_y
 
     def update_position(self, planets):
-        total_fx = total_fy = 0
-        for planet in planets:
-            if self == planet:
-                continue
-            fx, fy = self.attraction(planet)
-            total_fx += fx
-            total_fy += fy
+        # total_fx = total_fy = 0
+        # for planet in planets:
+        #     if self == planet:
+        #         continue
+            # fx, fy = self.attraction(planet)
+            # total_fx += fx
+            # total_fy += fy
+
         self.x_vel += total_fx / self.mass * self.TIMESTEP
         self.y_vel += total_fy / self.mass * self.TIMESTEP
         self.x += self.x_vel * self.TIMESTEP

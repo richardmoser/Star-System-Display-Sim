@@ -18,10 +18,23 @@ import pygame
 import math
 import random
 import os
+from pygame._sdl2 import Window
 
-x = 1
-y = 31
-os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (x,y)
+# x = 100
+# y = 100
+# read the last window position from file
+
+def window_position_recall():
+    if os.path.exists("last_window_position.txt"):
+        with open("last_window_position.txt", "r") as f:
+            window_position = f.read()
+    print(f"window position: {window_position} read from file")
+    x = int(window_position.split(",")[0].split("(")[1])
+    y = int(window_position.split(",")[1].split(")")[0])
+    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (x,y)
+
+window_position_recall()
+
 # initialize pygame
 pygame.init()
 # set the size of the window
@@ -59,7 +72,7 @@ class Planet:
     and a name
     """
 
-    def __init__(self, name, radius, orbital_radius, color, orbital_speed):
+    def __init__(self, name, radius, orbital_radius, color):
         """
         initializes the planet class
         :param radius: radius
@@ -71,13 +84,16 @@ class Planet:
         self.radius = radius
         self.color = color
         self.orbit = []
-        self.orbital_speed = orbital_speed
+        # self.orbital_speed = orbital_speed
+
         self.theta = random.uniform(0, 2 * math.pi)
         self.orbital_radius = orbital_radius
         if str(name) == "0":
             self.orbital_radius = 0
             self.x = 400 #WIDTH / 2
             self.y = 400 #HEIGHT / 2
+            self.orbital_speed = 0
+
         else:
         #     min_radius = ((planet_no ** 1.2) * 100)
         #     max_radius = (((planet_no + 1) ** 1.1) - ((planet_no + 1) * .9) ** 1.1) * 100
@@ -87,6 +103,9 @@ class Planet:
             # self.orbital_radius = planet_no * 100
             self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2
             self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2
+            self.mass = 4 / 3 * math.pi * (self.radius ** 3)
+            self.orbital_speed = math.sqrt(5 * self.mass / self.orbital_radius ** 3)
+            # self.orbital_speed =
         # print(f"planet {self.name} orbital radius: {self.orbital_radius}")
         # print(f"planet {self.name} x: {self.x}")
         # print(f"planet {self.name} y: {self.y}")
@@ -120,12 +139,16 @@ class Planet:
         # calculate the new x and y coordinates
         if str(self.name) == "0":
             return
+        # TODO: fix make period a function of orbital radius.
+        #  period of cos(ax) = 2pi/a -> a = 2pi/period
+        # orbital period = (2pi * r^1.5) / sqrt(GM)
+        """so T^2 is proportional to r^3, T is proportional to r^(3/2)"""
         self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2
         self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2
         # add the new coordinates to the orbit list
         self.orbit.append((self.x, self.y))
         # increment theta
-        self.theta += self.orbital_speed * 0.0001
+        self.theta += self.orbital_speed * 0.002
 
     def draw_orbit(self, window):
         """
@@ -134,8 +157,7 @@ class Planet:
         :return: None
         """
         pygame.draw.circle(window, self.color, (WIDTH / 2,WIDTH / 2.), self.orbital_radius, 1)
-        # pygame.draw.circle(screen, (255, 255, 255), (0,0), self.orbital_radius)
-        # plot_circle(0,0, 30)
+
 
 class Moon:
     """
@@ -144,11 +166,10 @@ class Moon:
     and a name
     """
 
-    def __init__(self, host_planet, radius, color, orbital_radius, orbital_speed, name):
+    def __init__(self, host_planet, color, orbital_radius, orbital_speed, name):
         """
         initializes the moon class
         :param host_planet: host planet
-        :param radius: radius
         :param color: color
         :param orbital_radius: orbital radius
         :param orbital_speed: orbital speed
@@ -156,10 +177,7 @@ class Moon:
         """
         self.name = name
         self.host_planet = host_planet
-        # self.radius = radius
-        # while self.radius > self.host_planet.radius:
-        # TODO: either delete this and remove the radius parameter or fix it
-        self.radius = random.randint(1, int(self.host_planet.radius * 0.5))
+        self.radius = random.uniform(self.host_planet.radius * 0.2, self.host_planet.radius * 0.4)
         self.color = color
         self.orbit = []
         self.orbital_speed = orbital_speed
@@ -283,36 +301,51 @@ def main():
     max_moons_outer = 5
 
     # make the sun
-    sun = Planet(0, 25, 0, COLOR_TAC_GREEN, 0)
+    sun = Planet(0, 25, 0, COLOR_TAC_GREEN)
     # loop through the number of planets to make
     for i in range(num_planets):
         # make a planet
         if i < 2: # if i is a very inner planet
-            planets.append(Planet(f" {i + 1}", random.randint(2, 10), orbit_radii[i], COLOR_TAC_GREEN, random.randint(2, 6)))
+            planets.append(Planet(f" {i + 1}", random.randint(2, 10), orbit_radii[i], COLOR_TAC_GREEN))
             num_moons = random.randint(0, 1)
             for j in range(num_moons):
                 # make a moon
-                moons.append(Moon(planets[i], random.randint(3, 4), COLOR_TAC_GREEN, random.randint(planets[i].radius + 5, planets[i].radius +20), random.randint(5, 15), f"M{j + 1}"))
+                moons.append(
+                    Moon(planets[i], COLOR_TAC_GREEN, random.randint(planets[i].radius + 5, planets[i].radius + 20),
+                         random.randint(5, 15), f"M{j + 1}"))
         elif 2 <= i < 4: # if i is an inner planet
-            planets.append(Planet(f" {i + 1}", random.randint(2, 20), orbit_radii[i], COLOR_TAC_GREEN, random.randint(2, 6)))
+            planets.append(Planet(f" {i + 1}", random.randint(2, 20), orbit_radii[i], COLOR_TAC_GREEN))
             num_moons = random.randint(0, max_moons_inner)
             for j in range(num_moons):
                 # make a moon
-                moons.append(Moon(planets[i], random.randint(1, 3), COLOR_TAC_GREEN, random.randint(planets[i].radius + 5, planets[i].radius +20), random.randint(5, 15), f"M{j + 1}"))
+                moons.append(
+                    Moon(planets[i], COLOR_TAC_GREEN, random.randint(planets[i].radius + 5, planets[i].radius + 20),
+                         random.randint(5, 15), f"M{j + 1}"))
         else: # if i is an outer planet
-            planets.append(Planet(f" {i + 1}", random.randint(6, 12), orbit_radii[i], COLOR_TAC_GREEN, random.randint(2, 6)))
+            planets.append(Planet(f" {i + 1}", random.randint(6, 12), orbit_radii[i], COLOR_TAC_GREEN))
             num_moons = random.randint(0, max_moons_outer)
             for j in range(num_moons):
-                moons.append(Moon(planets[i], random.randint(2, 3), COLOR_TAC_GREEN, random.randint(planets[i].radius + 7, planets[i].radius +25), random.randint(5, 15), f"M{j + 1}"))
+                moons.append(
+                    Moon(planets[i], COLOR_TAC_GREEN, random.randint(planets[i].radius + 7, planets[i].radius + 25),
+                         random.randint(5, 15), f"M{j + 1}"))
         print(f"Planet {i}, radius: {planets[i].radius} orbital radius: {orbit_radii[i]}, num moons: {num_moons}")
     # set the variable running to True
     running = True
+
+    window = Window.from_display_module()
+    print(window.position)
+
 
     while running:
         # for every event in pygame
         for event in pygame.event.get():
             # if the event is quit
             if event.type == pygame.QUIT:
+                # save window position to file
+                with open("last_window_position.txt", "w") as f:
+                    f.write(f"{window.position}")
+                print(f"window position: {window.position} saved to file")
+
                 # set running to False
                 running = False
         # fill the screen with black
@@ -341,7 +374,10 @@ def main():
         window_w, window_h = pygame.display.get_surface().get_size()
         distance = 10
         # if keys[pygame.K_LEFT] or mouse_x == 0:
-        #     move_x += distance
+            # move_x += distance
+            # window = Window.from_display_module()
+            # print(window.position)
+
         # if keys[pygame.K_RIGHT] or mouse_x == window_w - 1:
         #     move_x -= distance
         # if keys[pygame.K_UP] or mouse_y == 0:
@@ -365,7 +401,6 @@ if __name__ == '__main__':
     # the same random distribution function as the planets
     # moon radius should be a fraction of the planet radius
     # moon orbital radius may need to be spaced relative to the moon radius
-# TODO: make orbital velocity a function of orbital radius
 
 # TODO: set autoscale for orbits
 # TODO: add zoom in and out feature from sol_map code
