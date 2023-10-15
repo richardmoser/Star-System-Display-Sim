@@ -81,13 +81,13 @@ class Planet:
         return force_x, force_y
 
     def update_position(self, planets):
-        # total_fx = total_fy = 0
-        # for planet in planets:
-        #     if self == planet:
-        #         continue
-            # fx, fy = self.attraction(planet)
-            # total_fx += fx
-            # total_fy += fy
+        total_fx = total_fy = 0
+        for planet in planets:
+            if self == planet:
+                continue
+            fx, fy = self.attraction(planet)
+            total_fx += fx
+            total_fy += fy
 
         self.x_vel += total_fx / self.mass * self.TIMESTEP
         self.y_vel += total_fy / self.mass * self.TIMESTEP
