@@ -13,14 +13,33 @@ His app is a colorful recreation of our solar system with a different purpose
 and feature set than this one, so make sure to check it out!
 https://github.codm/zerot69/Solar-System-Simulation
 """
+from pygame._sdl2 import Window
 
 from library import *
 
 
+if os.path.exists("last_window_position.txt"):
+    with open("last_window_position.txt", "r") as f:
+        window_position = f.read()
+else:
+    #create the file and write the default window position to it
+    with open("last_window_position.txt", "w") as f:
+        f.write("(0, 0)")
+print(f"window position: {window_position} read from file")
+x = int(window_position.split(",")[0].split("(")[1])
+y = int(window_position.split(",")[1].split(")")[0])
+print(f"x: {x}")
+print(f"y: {y}")
+print("")
+# os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (x, y)
+# set the window position to x, y
+
 
 def main():
-    window_position_recall()
-
+    # window_position_recall()
+    # screen, FONT_1, FONT_2, clock, screen_size, color_universe = configure()
+    move_x = 0
+    move_y = 0
     system = "Epsilon Eridani"
     planets = []
     moons = []
@@ -37,12 +56,15 @@ def main():
     max_moons_inner = 2
     max_moons_outer = 5
 
-    # make the sun
-    sun = Planet(0, 25, 0, COLOR_TAC_GREEN)
     # loop through the number of planets to make
     for i in range(num_planets):
         # make a planet
-        if i < 2: # if i is a very inner planet
+        if i == 0: # if i is the sun
+            planets.append(Planet(0, 25, 0, COLOR_TAC_GREEN))
+            # set number of moons to 0
+            num_moons = 0
+
+        elif 0 < i < 2: # if i is a very inner planet
             planets.append(Planet(f" {i + 1}", random.randint(2, 10), orbit_radii[i], COLOR_TAC_GREEN))
             num_moons = random.randint(0, 1)
             for j in range(num_moons):
@@ -74,6 +96,8 @@ def main():
 
 
     while running:
+        clock.tick(60)
+
         # for every event in pygame
         for event in pygame.event.get():
             # if the event is quit
@@ -90,9 +114,8 @@ def main():
         screen.fill((0, 0, 0))
 
         # draw the planets
-        sun.draw(screen, print_planets, 0, 0, False, COLOR_TAC_GREEN)
         for planet in planets:
-            planet.draw_orbit(screen)
+            planet.draw_orbit(screen, move_x, move_y)
             planet.draw(screen, print_planets, 0, planet.radius + 10, False, COLOR_TAC_GREEN)
         for moon in moons:
             moon.draw_orbit(screen)
@@ -104,27 +127,28 @@ def main():
 
         if not pause:
             for planet in planets:
-                planet.update_position()
+                planet.update_position(move_x, move_y)
             for moon in moons:
-                moon.update_position()
+                moon.update_position(move_x, move_y)
 
         keys = pygame.key.get_pressed()
         mouse_x, mouse_y = pygame.mouse.get_pos()
         window_w, window_h = pygame.display.get_surface().get_size()
         distance = 10
-        # if keys[pygame.K_LEFT] or mouse_x == 0:
-            # move_x += distance
-            # window = Window.from_display_module()
-            # print(window.position)
+        if keys[pygame.K_LEFT]:
+            move_x += distance
+            window = Window.from_display_module()
+        if keys[pygame.K_RIGHT]:
+            move_x -= distance
+            window = Window.from_display_module()
+        if keys[pygame.K_UP]:
+            move_y += distance
+            window = Window.from_display_module()
+        if keys[pygame.K_DOWN]:
+            move_y -= distance
+            window = Window.from_display_module()
 
-        # if keys[pygame.K_RIGHT] or mouse_x == window_w - 1:
-        #     move_x -= distance
-        # if keys[pygame.K_UP] or mouse_y == 0:
-        #     move_y += distance
-        # if keys[pygame.K_DOWN] or mouse_y == window_h - 1:
-            # print(sun.x, sun.y)
 
-        # update the display
         pygame.display.update()
         # set the fps to 60
         clock.tick(60)

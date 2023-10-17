@@ -6,8 +6,22 @@ import os
 import random
 import math
 import pygame
-from pygame._sdl2 import Window
 
+"""
+do not move this block until you are smart enough to do so
+"""
+# this block must be above the pygame.init() line
+if os.path.exists("last_window_position.txt"):
+    with open("last_window_position.txt", "r") as f:
+        window_position = f.read()
+else:
+    #create the file and write the default window position to it
+    with open("last_window_position.txt", "w") as f:
+        f.write("(0, 0)")
+print(f"window position: {window_position} read from file")
+x = int(window_position.split(",")[0].split("(")[1])
+y = int(window_position.split(",")[1].split(")")[0])
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (x,y)
 
 # initialize pygame
 pygame.init()
@@ -28,6 +42,8 @@ COLOR_NEPTUNE = (63, 84, 186)
 # COLOR_PALE_BLUE = (0, 255, 255)
 COLOR_TAC_GREEN = (89, 255, 66)
 
+# TODO: figure out how to make WIDTH and HEIGHT accessible to all files. orbital_map.py needs them as do functions in
+#  library.py below.
 WIDTH, HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
 FONT_1 = pygame.font.SysFont("Trebuchet MS", 21)
 FONT_2 = pygame.font.SysFont("Trebuchet MS", 16)
@@ -38,6 +54,9 @@ pygame.display.set_caption("system_map")
 
 # create a clock
 clock = pygame.time.Clock()
+"""
+end of block
+"""
 
 def configure():
     # if config.txt exists, read it and set the variables accordingly, otherwise set the variables to default values
@@ -54,17 +73,6 @@ def configure():
     else:
         screen_size = (800, 800)
         color_universe = "COLOR_UNIVERSE"
-
-
-
-def window_position_recall():
-    if os.path.exists("last_window_position.txt"):
-        with open("last_window_position.txt", "r") as f:
-            window_position = f.read()
-    print(f"window position: {window_position} read from file")
-    x = int(window_position.split(",")[0].split("(")[1])
-    y = int(window_position.split(",")[1].split(")")[0])
-    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (x,y)
 
 
 def plot_circle(x, y, r):
@@ -145,28 +153,17 @@ class Planet:
 
         self.theta = random.uniform(0, 2 * math.pi)
         self.orbital_radius = orbital_radius
-        if str(name) == "0":
-            self.orbital_radius = 0
-            self.x = 400 #WIDTH / 2
-            self.y = 400 #HEIGHT / 2
-            self.orbital_speed = 0
-
-        else:
-        #     min_radius = ((planet_no ** 1.2) * 100)
-        #     max_radius = (((planet_no + 1) ** 1.1) - ((planet_no + 1) * .9) ** 1.1) * 100
-        #     if planet_no == 1:
-        #         min_radius += 50
-        #     # self.orbital_radius = random.uniform(min_radius, max_radius)
+        if str(name) == "0":  # if the planet is the sun
+            self.orbital_radius = 0 # set the orbital radius to 0
+            self.x = WIDTH / 2 # set the x coordinate to the center of the screen
+            self.y = HEIGHT / 2 # set the y coordinate to the center of the screen
+            self.orbital_speed = 0 # set the orbital speed to 0
+        else: # if the planet is not the sun
             # self.orbital_radius = planet_no * 100
-            self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2
-            self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2
-            self.mass = 4 / 3 * math.pi * (self.radius ** 3)
-            self.orbital_speed = math.sqrt(5 * self.mass / self.orbital_radius ** 3)
-            # self.orbital_speed =
-        # print(f"planet {self.name} orbital radius: {self.orbital_radius}")
-        # print(f"planet {self.name} x: {self.x}")
-        # print(f"planet {self.name} y: {self.y}")
-        # print("")
+            self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2 # calculate the x coordinate
+            self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2 # calculate the y coordinate
+            self.mass = 4 / 3 * math.pi * (self.radius ** 3) # calculate the mass
+            self.orbital_speed = math.sqrt(5 * self.mass / self.orbital_radius ** 3) # calculate the orbital speed
 
 
     def draw(self, window, show_name, move_x, move_y, line_to_sun, text_color=COLOR_WHITE):
@@ -188,32 +185,33 @@ class Planet:
             pygame.draw.line(window, self.color, (x_posit, y_posit), (WIDTH / 2, HEIGHT / 2), 1)
 
 
-    def update_position(self):
+    def update_position(self, move_x, move_y):
         """
         updates the position of the planets. gravity is not taken into account
         :return: None
         """
         # calculate the new x and y coordinates
         if str(self.name) == "0":
+            self.x = WIDTH / 2 + move_x
+            self.y = HEIGHT / 2 + move_y
             return
-        # TODO: fix make period a function of orbital radius.
-        #  period of cos(ax) = 2pi/a -> a = 2pi/period
-        # orbital period = (2pi * r^1.5) / sqrt(GM)
-        """so T^2 is proportional to r^3, T is proportional to r^(3/2)"""
-        self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2
-        self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2
+        self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2 + move_x
+        self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2 + move_y
         # add the new coordinates to the orbit list
         self.orbit.append((self.x, self.y))
         # increment theta
         self.theta += self.orbital_speed * 0.002
 
-    def draw_orbit(self, window):
+    def draw_orbit(self, window, move_x, move_y):
         """
         draws the orbit of the planet
         :param window: window
         :return: None
         """
-        pygame.draw.circle(window, self.color, (WIDTH / 2,WIDTH / 2.), self.orbital_radius, 1)
+        x = WIDTH / 2 + move_x
+        y = HEIGHT / 2 + move_y
+        # pygame.draw.circle(window, self.color, (WIDTH / 2,WIDTH / 2.), self.orbital_radius, 1)
+        pygame.draw.circle(window, self.color, (x, y), self.orbital_radius, 1)
 
 
 class Moon:
@@ -261,9 +259,10 @@ class Moon:
             text = FONT_2.render(self.name, True, text_color)
             window.blit(text, (x_posit + move_x - text.get_width() / 2, y_posit + move_y - text.get_height() / 2))
         if line_to_host:
-            pygame.draw.line(window, self.color, (x_posit, y_posit), (self.host_planet.x, self.host_planet.y), 1)
+            pygame.draw.line(window, self.color, (x_posit, y_posit), (self.host_planet.x,
+                                                                      self.host_planet.y), 1)
 
-    def update_position(self):
+    def update_position(self, move_x, move_y):
         """
         updates the position of the moons. gravity is not taken into account
         :return: None
