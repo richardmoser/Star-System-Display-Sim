@@ -108,6 +108,15 @@ def main():
                 print(f"window position: {window.position} saved to file")
                 # set running to False
                 running = False
+            # zoom in and out with the mouse wheel
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
+                Planet.SCALE *= 0.75
+                for planet in planets:
+                    planet.update_radius(0.75)
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
+                Planet.SCALE *= 1.25
+                for planet in planets:
+                    planet.update_radius(1.25)
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 pause = not pause
         # fill the screen with black
@@ -153,10 +162,10 @@ def main():
         if keys[pygame.K_c]:
             move_x = 0
             move_y = 0
-        if keys[pygame.K_ESCAPE]:
-            running = False
 
 
+        # print(planets[0].x, planets[0].y)
+        # print(planets[0].SCALE)
         pygame.display.update()
         # set the fps to 60
         clock.tick(60)

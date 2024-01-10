@@ -136,7 +136,7 @@ class Planet:
     starting x and y coordinate, a radius, color, orbital_radius, orbital_speed,
     and a name
     """
-
+    SCALE = 1
     def __init__(self, name, radius, orbital_radius, color):
         """
         initializes the planet class
@@ -145,6 +145,7 @@ class Planet:
         :param orbital_speed: orbital speed
         :param name: name
         """
+
         self.name = name
         self.radius = radius
         self.color = color
@@ -201,6 +202,16 @@ class Planet:
         self.orbit.append((self.x, self.y))
         # increment theta
         self.theta += self.orbital_speed * 0.002
+
+
+    def update_radius(self, scale):
+        """
+        updates the radius of the planet
+        :param scale: scale
+        :return: None
+        """
+        self.radius *= scale
+        self.orbital_radius *= scale
 
     def draw_orbit(self, window, move_x, move_y):
         """
