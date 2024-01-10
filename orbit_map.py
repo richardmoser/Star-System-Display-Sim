@@ -113,6 +113,12 @@ def main():
         # fill the screen with black
         screen.fill((0, 0, 0))
 
+        if not pause:
+            for planet in planets:
+                planet.update_position(move_x, move_y)
+            for moon in moons:
+                moon.update_position(move_x, move_y)
+
         # draw the planets
         for planet in planets:
             planet.draw_orbit(screen, move_x, move_y)
@@ -125,16 +131,12 @@ def main():
             text = FONT_1.render(system, True, COLOR_TAC_GREEN)
             screen.blit(text, (WIDTH / 2 - text.get_width() / 2, 10))
 
-        if not pause:
-            for planet in planets:
-                planet.update_position(move_x, move_y)
-            for moon in moons:
-                moon.update_position(move_x, move_y)
+
 
         keys = pygame.key.get_pressed()
         mouse_x, mouse_y = pygame.mouse.get_pos()
         window_w, window_h = pygame.display.get_surface().get_size()
-        distance = 10
+        distance = 5
         if keys[pygame.K_LEFT]:
             move_x += distance
             window = Window.from_display_module()
@@ -147,6 +149,12 @@ def main():
         if keys[pygame.K_DOWN]:
             move_y -= distance
             window = Window.from_display_module()
+        # if the c key is pressed, center the system
+        if keys[pygame.K_c]:
+            move_x = 0
+            move_y = 0
+        if keys[pygame.K_ESCAPE]:
+            running = False
 
 
         pygame.display.update()
