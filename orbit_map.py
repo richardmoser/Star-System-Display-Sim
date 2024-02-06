@@ -13,6 +13,7 @@ His app is a colorful recreation of our solar system with a different purpose
 and feature set than this one, so make sure to check it out!
 https://github.codm/zerot69/Solar-System-Simulation
 """
+import pygame
 from pygame._sdl2 import Window
 
 from library import *
@@ -108,15 +109,21 @@ def main():
                 print(f"window position: {window.position} saved to file")
                 # set running to False
                 running = False
-            # zoom in and out with the mouse wheel
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
-                Planet.SCALE *= 0.75
+            # zoom in and out with the mouse wheel or the plus and minus keys
+            # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_KP_MINUS) or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 5):
+                # Planet.SCALE *= 0.75 does not actually do anything AFAICT
                 for planet in planets:
                     planet.update_radius(0.75)
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
-                Planet.SCALE *= 1.25
+                for moon in moons:
+                    moon.update_radius(0.75)
+            # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_KP_PLUS) or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 4):
+                # Planet.SCALE *= 1.25
                 for planet in planets:
                     planet.update_radius(1.25)
+                for moon in moons:
+                    moon.update_radius(1.25)
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 pause = not pause
         # fill the screen with black
@@ -162,6 +169,11 @@ def main():
         if keys[pygame.K_c]:
             move_x = 0
             move_y = 0
+        # if the z key is pressed, reset the zoom
+        # TODO: finish this. is there a default scale variable? update radius to starting default
+        if keys[pygame.K_z]:
+            for planet in planets:
+                planet.update_radius()
 
 
         # print(planets[0].x, planets[0].y)

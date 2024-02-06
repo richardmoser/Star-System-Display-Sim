@@ -286,6 +286,15 @@ class Moon:
         # increment theta
         self.theta += self.orbital_speed * 0.0001
 
+    def update_radius(self, scale):
+        """
+        updates the radius of the moon
+        :param scale: scale
+        :return: None
+        """
+        self.radius *= scale
+        self.orbital_radius *= scale
+
     def draw_orbit(self, window):
         """
         draws the orbit of the planet
