@@ -13,6 +13,7 @@ His app is a colorful recreation of our solar system with a different purpose
 and feature set than this one, so make sure to check it out!
 https://github.codm/zerot69/Solar-System-Simulation
 """
+import pygame
 from pygame._sdl2 import Window
 
 from library import *
@@ -36,6 +37,7 @@ print("")
 
 
 def main():
+    default_scale = 100
     # window_position_recall()
     # screen, FONT_1, FONT_2, clock, screen_size, color_universe = configure()
     move_x = 0
@@ -55,6 +57,7 @@ def main():
     orbit_radii = random_radius_distribution(num_planets, rmin, rmax, min_space)
     max_moons_inner = 2
     max_moons_outer = 5
+    selected_planet = None
 
     # loop through the number of planets to make
     for i in range(num_planets):
@@ -108,6 +111,21 @@ def main():
                 print(f"window position: {window.position} saved to file")
                 # set running to False
                 running = False
+            # zoom in and out with the mouse wheel or the plus and minus keys
+            # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_KP_MINUS) or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 5):
+                # Planet.SCALE *= 0.75 does not actually do anything AFAICT
+                for planet in planets:
+                    planet.update_radius(0.75)
+                for moon in moons:
+                    moon.update_radius(0.75)
+            # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_KP_PLUS) or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 4):
+                # Planet.SCALE *= 1.25
+                for planet in planets:
+                    planet.update_radius(1.25)
+                for moon in moons:
+                    moon.update_radius(1.25)
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 pause = not pause
         # fill the screen with black
@@ -123,6 +141,12 @@ def main():
         for planet in planets:
             planet.draw_orbit(screen, move_x, move_y)
             planet.draw(screen, print_planets, 0, planet.radius + 10, False, COLOR_TAC_GREEN)
+            if selected_planet is not None:
+                if planet == planets[selected_planet]:
+                    # call the select_planet method to draw the selected planet for 30 frames and then do not draw it for 30 frames
+                    if pygame.time.get_ticks()
+                        select_planet(selected_planet, planets)
+
         for moon in moons:
             moon.draw_orbit(screen)
             moon.draw(screen, print_moons, 0, moon.radius + 10, False, COLOR_TAC_GREEN)
@@ -153,10 +177,36 @@ def main():
         if keys[pygame.K_c]:
             move_x = 0
             move_y = 0
-        if keys[pygame.K_ESCAPE]:
-            running = False
+        # if the z key is pressed, reset the zoom
+        if keys[pygame.K_z]:
+            for planet in planets:
+                planet.reset_radius()
+            for moon in moons:
+                moon.reset_radius()
+        # if the s key is pressed, toggle the system name
+        if keys[pygame.K_s]:
+            print_system = not print_system
+        # TODO: troubleshoot debounce on selection
+        # if the a key is pressed, decrement the selected planet. If no planet is selected, select the last planet
+        if keys[pygame.K_a]:
+            if selected_planet is None:
+                selected_planet = len(planets) - 1
+            elif selected_planet == 0:
+                selected_planet = len(planets) - 1
+            else:
+                selected_planet -= 1
+        # if the d key is pressed, increment the selected planet. If no planet is selected, select the first planet
+        if keys[pygame.K_d]:
+            if selected_planet is None:
+                selected_planet = 0
+            elif selected_planet == len(planets) - 1:
+                selected_planet = 0
+            else:
+                selected_planet += 1
 
 
+        # print(planets[0].x, planets[0].y)
+        # print(planets[0].SCALE)
         pygame.display.update()
         # set the fps to 60
         clock.tick(60)
