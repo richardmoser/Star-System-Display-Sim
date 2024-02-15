@@ -130,6 +130,37 @@ def random_radius_distribution(n, rmin, rmax, min_space=60):
     return radii
 
 
+def select_planet(planet_no, planets):
+    """
+    Draw the corners of a square around the planet
+    :param planet_no: the number of the planet which is being selected
+    :return: None
+    """
+    # calculate the x and y coordinates of the planet
+    x = planets[planet_no].x
+    y = planets[planet_no].y
+    # draw the corners of the square
+    # pygame.draw.circle(screen, (255, 255, 255), (x - planets[planet_no].radius, y - planets[planet_no].radius), 5)
+    # pygame.draw.circle(screen, (255, 255, 255), (x + planets[planet_no].radius, y - planets[planet_no].radius), 5)
+    # pygame.draw.circle(screen, (255, 255, 255), (x - planets[planet_no].radius, y + planets[planet_no].radius), 5)
+    # pygame.draw.circle(screen, (255, 255, 255), (x + planets[planet_no].radius, y + planets[planet_no].radius), 5)
+
+    # use draw.lines to draw two lines for each corner of the square. The sides should stand off the planet by 10 pixels and the length of the lines should be 30% of the radius
+
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y - planets[planet_no].radius), (x - planets[planet_no].radius + int(0.3 * planets[planet_no].radius), y - planets[planet_no].radius)], 1)  # the top left corner to the left side of the planet
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y - planets[planet_no].radius), (x - planets[planet_no].radius, y - planets[planet_no].radius + int(0.3 * planets[planet_no].radius))], 1)  # the top left corner to the top side of the planet
+
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y - planets[planet_no].radius), (x + planets[planet_no].radius - int(0.3 * planets[planet_no].radius), y - planets[planet_no].radius)], 1)  # the top right corner to the right side of the planet
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y - planets[planet_no].radius), (x + planets[planet_no].radius, y - planets[planet_no].radius + int(0.3 * planets[planet_no].radius))], 1)  # the top right corner to the top side of the planet
+
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y + planets[planet_no].radius), (x - planets[planet_no].radius + int(0.3 * planets[planet_no].radius), y + planets[planet_no].radius)], 1)  # the bottom left corner to the left side of the planet
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y + planets[planet_no].radius), (x - planets[planet_no].radius, y + planets[planet_no].radius - int(0.3 * planets[planet_no].radius))], 1)  # the bottom left corner to the bottom side of the planet
+
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y + planets[planet_no].radius), (x + planets[planet_no].radius - int(0.3 * planets[planet_no].radius), y + planets[planet_no].radius)], 1)  # the bottom right corner to the right side of the planet
+    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y + planets[planet_no].radius), (x + planets[planet_no].radius, y + planets[planet_no].radius - int(0.3 * planets[planet_no].radius))], 1)  # the bottom right corner to the bottom side of the planet
+
+
+
 class Planet:
     """
     defines a planet class which will be used to create planets. planets have a
@@ -148,12 +179,14 @@ class Planet:
 
         self.name = name
         self.radius = radius
+        self.radius_initial = radius
         self.color = color
         self.orbit = []
         # self.orbital_speed = orbital_speed
 
         self.theta = random.uniform(0, 2 * math.pi)
         self.orbital_radius = orbital_radius
+        self.orbital_radius_initial = orbital_radius
         if str(name) == "0":  # if the planet is the sun
             self.orbital_radius = 0 # set the orbital radius to 0
             self.x = WIDTH / 2 # set the x coordinate to the center of the screen
@@ -213,6 +246,16 @@ class Planet:
         self.radius *= scale
         self.orbital_radius *= scale
 
+
+    def reset_radius(self):
+        """
+        resets the radius of the planet
+        :return: None
+        """
+        self.radius = self.radius_initial
+        self.orbital_radius = self.orbital_radius_initial
+
+
     def draw_orbit(self, window, move_x, move_y):
         """
         draws the orbit of the planet
@@ -244,12 +287,14 @@ class Moon:
         self.name = name
         self.host_planet = host_planet
         self.radius = random.uniform(self.host_planet.radius * 0.2, self.host_planet.radius * 0.4)
+        self.radius_initial = self.radius
         self.color = color
         self.orbit = []
         self.orbital_speed = orbital_speed
         self.theta = random.uniform(0, 2 * math.pi)
         # self.orbital_radius = random.randint(host_planet.radius * 1.5, host_planet.radius * 1.9)
         self.orbital_radius = orbital_radius
+        self.orbital_radius_initial = self.orbital_radius
         # self.x = orbital_radius * math.cos(self.theta)
         # self.y = orbital_radius * math.sin(self.theta)
 
@@ -295,6 +340,16 @@ class Moon:
         self.radius *= scale
         self.orbital_radius *= scale
 
+
+    def reset_radius(self):
+        """
+        resets the radius of the moon
+        :return: None
+        """
+        self.radius = self.radius_initial
+        self.orbital_radius = self.orbital_radius_initial
+
+
     def draw_orbit(self, window):
         """
         draws the orbit of the planet
@@ -303,4 +358,4 @@ class Moon:
         """
         pygame.draw.circle(window, self.color, (self.host_planet.x, self.host_planet.y), self.orbital_radius, 1)
         # pygame.draw.circle(screen, (255, 255, 255), (0,0), self.orbital_radius)
-        # plot_circle(0,0, 30)
+        # plot_circle(0,0, 30)ddddd

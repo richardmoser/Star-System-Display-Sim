@@ -37,6 +37,7 @@ print("")
 
 
 def main():
+    default_scale = 100
     # window_position_recall()
     # screen, FONT_1, FONT_2, clock, screen_size, color_universe = configure()
     move_x = 0
@@ -56,6 +57,7 @@ def main():
     orbit_radii = random_radius_distribution(num_planets, rmin, rmax, min_space)
     max_moons_inner = 2
     max_moons_outer = 5
+    selected_planet = None
 
     # loop through the number of planets to make
     for i in range(num_planets):
@@ -139,6 +141,12 @@ def main():
         for planet in planets:
             planet.draw_orbit(screen, move_x, move_y)
             planet.draw(screen, print_planets, 0, planet.radius + 10, False, COLOR_TAC_GREEN)
+            if selected_planet is not None:
+                if planet == planets[selected_planet]:
+                    # call the select_planet method to draw the selected planet for 30 frames and then do not draw it for 30 frames
+                    if pygame.time.get_ticks()
+                        select_planet(selected_planet, planets)
+
         for moon in moons:
             moon.draw_orbit(screen)
             moon.draw(screen, print_moons, 0, moon.radius + 10, False, COLOR_TAC_GREEN)
@@ -170,10 +178,31 @@ def main():
             move_x = 0
             move_y = 0
         # if the z key is pressed, reset the zoom
-        # TODO: finish this. is there a default scale variable? update radius to starting default
         if keys[pygame.K_z]:
             for planet in planets:
-                planet.update_radius()
+                planet.reset_radius()
+            for moon in moons:
+                moon.reset_radius()
+        # if the s key is pressed, toggle the system name
+        if keys[pygame.K_s]:
+            print_system = not print_system
+        # TODO: troubleshoot debounce on selection
+        # if the a key is pressed, decrement the selected planet. If no planet is selected, select the last planet
+        if keys[pygame.K_a]:
+            if selected_planet is None:
+                selected_planet = len(planets) - 1
+            elif selected_planet == 0:
+                selected_planet = len(planets) - 1
+            else:
+                selected_planet -= 1
+        # if the d key is pressed, increment the selected planet. If no planet is selected, select the first planet
+        if keys[pygame.K_d]:
+            if selected_planet is None:
+                selected_planet = 0
+            elif selected_planet == len(planets) - 1:
+                selected_planet = 0
+            else:
+                selected_planet += 1
 
 
         # print(planets[0].x, planets[0].y)
