@@ -37,7 +37,7 @@ print("")
 
 
 def main():
-    default_scale = 100
+    default_scale = 1
     # window_position_recall()
     # screen, FONT_1, FONT_2, clock, screen_size, color_universe = configure()
     move_x = 0
@@ -58,6 +58,11 @@ def main():
     max_moons_inner = 2
     max_moons_outer = 5
     selected_planet = None
+    selected_counter = 0
+    debounce_timer = 0
+    zoom_planet = False
+    scale_changed = False
+    scale = default_scale
 
     # loop through the number of planets to make
     for i in range(num_planets):
@@ -98,6 +103,7 @@ def main():
     print(window.position)
 
 
+
     while running:
         clock.tick(60)
 
@@ -112,30 +118,30 @@ def main():
                 # set running to False
                 running = False
             # zoom in and out with the mouse wheel or the plus and minus keys
-            # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_KP_MINUS) or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 5):
-                # Planet.SCALE *= 0.75 does not actually do anything AFAICT
-                for planet in planets:
-                    planet.update_radius(0.75)
-                for moon in moons:
-                    moon.update_radius(0.75)
+                scale -= 0.25
+                scale_changed = True
             # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_KP_PLUS) or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 4):
-                # Planet.SCALE *= 1.25
-                for planet in planets:
-                    planet.update_radius(1.25)
-                for moon in moons:
-                    moon.update_radius(1.25)
+                scale += 0.25
+                scale_changed = True
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 pause = not pause
         # fill the screen with black
         screen.fill((0, 0, 0))
 
+        if scale_changed:
+            for planet in planets:
+                planet.update_radius(scale)
+            for moon in moons:
+                moon.update_radius(scale)
+            scale_changed = False
+
         if not pause:
             for planet in planets:
-                planet.update_position(move_x, move_y)
+                planet.translate_body(move_x, move_y)
             for moon in moons:
-                moon.update_position(move_x, move_y)
+                moon.translate_body(move_x, move_y)
 
         # draw the planets
         for planet in planets:
@@ -144,8 +150,12 @@ def main():
             if selected_planet is not None:
                 if planet == planets[selected_planet]:
                     # call the select_planet method to draw the selected planet for 30 frames and then do not draw it for 30 frames
-                    if pygame.time.get_ticks()
+                    selected_counter += 1
+                    if selected_counter < 30:
                         select_planet(selected_planet, planets)
+                    if selected_counter >= 60:
+                        selected_counter = 0
+
 
         for moon in moons:
             moon.draw_orbit(screen)
@@ -161,6 +171,9 @@ def main():
         mouse_x, mouse_y = pygame.mouse.get_pos()
         window_w, window_h = pygame.display.get_surface().get_size()
         distance = 5
+        # if the escape key is pressed, set running to False
+        if keys[pygame.K_ESCAPE]:
+            running = False
         if keys[pygame.K_LEFT]:
             move_x += distance
             window = Window.from_display_module()
@@ -189,22 +202,63 @@ def main():
         # TODO: troubleshoot debounce on selection
         # if the a key is pressed, decrement the selected planet. If no planet is selected, select the last planet
         if keys[pygame.K_a]:
-            if selected_planet is None:
-                selected_planet = len(planets) - 1
-            elif selected_planet == 0:
-                selected_planet = len(planets) - 1
-            else:
-                selected_planet -= 1
+            if debounce_timer == 0:
+                debounce_timer = 10
+                if selected_planet is None:
+                    selected_planet = len(planets) - 1
+                elif selected_planet == 0:
+                    selected_planet = len(planets) - 1
+                else:
+                    selected_planet -= 1
+            # else:
+                # debounce_timer -= 1
+            just_pressed = debounce_timer == 0
+            # if just_pressed:
         # if the d key is pressed, increment the selected planet. If no planet is selected, select the first planet
         if keys[pygame.K_d]:
-            if selected_planet is None:
-                selected_planet = 0
-            elif selected_planet == len(planets) - 1:
-                selected_planet = 0
-            else:
-                selected_planet += 1
+            if debounce_timer == 0:
+                debounce_timer = 10
+                if selected_planet is None:
+                    selected_planet = 0
+                elif selected_planet == len(planets) - 1:
+                    selected_planet = 0
+                else:
+                    selected_planet += 1
+            # else:
+            #     debounce_timer -= 1
+            just_pressed = debounce_timer == 0
+        # if the return key is pressed, call zoom_to_planet on the selected planet
+        if keys[pygame.K_RETURN]:
+            if selected_planet is not None and debounce_timer == 0:
+                debounce_timer = 50
+                zoom_planet = not zoom_planet
+        if keys[pygame.K_p]:
+            # print the planet's x, y, and radius and the current screen x, y, and scale
+            print(f"Planet {planets[selected_planet].name}, x: {x}, y: {y}, radius: {r}")
+            print(f"Screen x: {move_x}, y: {move_y}, scale: {scale}")
+            # move_x = window_w
 
 
+        if zoom_planet:
+            # Zooms in to the location of the selected planet 's position over a specified time interval. Zoom in until
+            # the planet fills 70 % of the screen. If already zoomed, recenters the planet on the screen.
+            x = planets[selected_planet].x
+            y = planets[selected_planet].y
+            r = planets[selected_planet].radius
+            # gradually move the screen to the selected planet using the lerp function
+            move_x = lerp(move_x, -x +200, 0.01)
+            move_y = lerp(move_y, -y, 0.01)
+            # gradually zoom in to the selected planet using the lerp function
+            scale = lerp(scale, 3, 0.01)
+
+            scale_changed = True
+
+
+
+
+        debounce_timer -= 1
+        if debounce_timer < 0:
+            debounce_timer = 0
         # print(planets[0].x, planets[0].y)
         # print(planets[0].SCALE)
         pygame.display.update()

@@ -38,7 +38,7 @@ COLOR_JUPITER = (216, 202, 157)
 COLOR_SATURN = (191, 189, 175)
 COLOR_URANUS = (209, 231, 231)
 COLOR_NEPTUNE = (63, 84, 186)
-# COLOR_PALE_BLUE = (0, 191, 255)
+COLOR_PALE_BLUE = (0, 191, 255)
 # COLOR_PALE_BLUE = (0, 255, 255)
 COLOR_TAC_GREEN = (89, 255, 66)
 
@@ -147,17 +147,57 @@ def select_planet(planet_no, planets):
 
     # use draw.lines to draw two lines for each corner of the square. The sides should stand off the planet by 10 pixels and the length of the lines should be 30% of the radius
 
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y - planets[planet_no].radius), (x - planets[planet_no].radius + int(0.3 * planets[planet_no].radius), y - planets[planet_no].radius)], 1)  # the top left corner to the left side of the planet
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y - planets[planet_no].radius), (x - planets[planet_no].radius, y - planets[planet_no].radius + int(0.3 * planets[planet_no].radius))], 1)  # the top left corner to the top side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x - planets[planet_no].radius, y - planets[planet_no].radius), (x - planets[planet_no].radius + int(0.3 * planets[planet_no].radius), y - planets[planet_no].radius)], 3)  # the top left corner to the left side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x - planets[planet_no].radius, y - planets[planet_no].radius), (x - planets[planet_no].radius, y - planets[planet_no].radius + int(0.3 * planets[planet_no].radius))], 3)  # the top left corner to the top side of the planet
 
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y - planets[planet_no].radius), (x + planets[planet_no].radius - int(0.3 * planets[planet_no].radius), y - planets[planet_no].radius)], 1)  # the top right corner to the right side of the planet
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y - planets[planet_no].radius), (x + planets[planet_no].radius, y - planets[planet_no].radius + int(0.3 * planets[planet_no].radius))], 1)  # the top right corner to the top side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x + planets[planet_no].radius, y - planets[planet_no].radius), (x + planets[planet_no].radius - int(0.3 * planets[planet_no].radius), y - planets[planet_no].radius)], 3)  # the top right corner to the right side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x + planets[planet_no].radius, y - planets[planet_no].radius), (x + planets[planet_no].radius, y - planets[planet_no].radius + int(0.3 * planets[planet_no].radius))], 3)  # the top right corner to the top side of the planet
 
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y + planets[planet_no].radius), (x - planets[planet_no].radius + int(0.3 * planets[planet_no].radius), y + planets[planet_no].radius)], 1)  # the bottom left corner to the left side of the planet
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x - planets[planet_no].radius, y + planets[planet_no].radius), (x - planets[planet_no].radius, y + planets[planet_no].radius - int(0.3 * planets[planet_no].radius))], 1)  # the bottom left corner to the bottom side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x - planets[planet_no].radius, y + planets[planet_no].radius), (x - planets[planet_no].radius + int(0.3 * planets[planet_no].radius), y + planets[planet_no].radius)], 3)  # the bottom left corner to the left side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x - planets[planet_no].radius, y + planets[planet_no].radius), (x - planets[planet_no].radius, y + planets[planet_no].radius - int(0.3 * planets[planet_no].radius))], 3)  # the bottom left corner to the bottom side of the planet
 
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y + planets[planet_no].radius), (x + planets[planet_no].radius - int(0.3 * planets[planet_no].radius), y + planets[planet_no].radius)], 1)  # the bottom right corner to the right side of the planet
-    pygame.draw.lines(screen, (255, 255, 255), False, [(x + planets[planet_no].radius, y + planets[planet_no].radius), (x + planets[planet_no].radius, y + planets[planet_no].radius - int(0.3 * planets[planet_no].radius))], 1)  # the bottom right corner to the bottom side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x + planets[planet_no].radius, y + planets[planet_no].radius), (x + planets[planet_no].radius - int(0.3 * planets[planet_no].radius), y + planets[planet_no].radius)], 3)  # the bottom right corner to the right side of the planet
+    pygame.draw.lines(screen, COLOR_PALE_BLUE, False, [(x + planets[planet_no].radius, y + planets[planet_no].radius), (x + planets[planet_no].radius, y + planets[planet_no].radius - int(0.3 * planets[planet_no].radius))], 3)  # the bottom right corner to the bottom side of the planet
+
+
+import time
+#
+# # Assuming these are initialized appropriately
+# initial_zoom = current_zoom_level()  # Get current zoom level
+# initial_position = current_camera_position()  # Get current position
+# target_zoom = calculate_target_zoom_for_planet(planet)
+# target_position = calculate_target_position_for_planet(planet)
+#
+# # Duration of the zoom effect in seconds
+# zoom_duration = 2.0
+# start_time = time.time()
+
+# def update():
+#     global current_zoom, current_position
+#     elapsed_time = time.time() - start_time
+#     t = min(1, elapsed_time / zoom_duration)  # Normalized time [0, 1]
+#
+#     # Linear interpolation for zoom and position
+#     current_zoom = lerp(initial_zoom, target_zoom, t)
+#     current_position = lerp_position(initial_position, target_position, t)
+#
+#     if t < 1:
+#         # Update the camera with the new zoom and position
+#         set_camera_zoom(current_zoom)
+#         set_camera_position(current_position)
+#     else:
+#         # Transition is complete
+#         # Optionally, you can reset or adjust states here
+
+def lerp(start, end, t):
+    """Linearly interpolate between start and end values based on t."""
+    return start + (end - start) * t
+
+def lerp_position(start_pos, end_pos, t):
+    """Interpolate between two positions. Assumes positions are tuples (x, y)."""
+    x = lerp(start_pos[0], end_pos[0], t)
+    y = lerp(start_pos[1], end_pos[1], t)
+    return (x, y)
 
 
 
@@ -219,22 +259,23 @@ class Planet:
             pygame.draw.line(window, self.color, (x_posit, y_posit), (WIDTH / 2, HEIGHT / 2), 1)
 
 
-    def update_position(self, move_x, move_y):
+    def translate_body(self, trans_x, trans_y):
         """
         updates the position of the planets. gravity is not taken into account
         :return: None
         """
         # calculate the new x and y coordinates
         if str(self.name) == "0":
-            self.x = WIDTH / 2 + move_x
-            self.y = HEIGHT / 2 + move_y
+            self.x = WIDTH / 2 + trans_x
+            self.y = HEIGHT / 2 + trans_y
             return
-        self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2 + move_x
-        self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2 + move_y
+        self.x = self.orbital_radius * math.cos(self.theta) + WIDTH / 2 + trans_x
+        self.y = self.orbital_radius * math.sin(self.theta) + HEIGHT / 2 + trans_y
         # add the new coordinates to the orbit list
         self.orbit.append((self.x, self.y))
         # increment theta
         self.theta += self.orbital_speed * 0.002
+
 
 
     def update_radius(self, scale):
@@ -243,8 +284,8 @@ class Planet:
         :param scale: scale
         :return: None
         """
-        self.radius *= scale
-        self.orbital_radius *= scale
+        self.radius = self.radius_initial * scale
+        self.orbital_radius = self.orbital_radius_initial * scale
 
 
     def reset_radius(self):
@@ -318,7 +359,7 @@ class Moon:
             pygame.draw.line(window, self.color, (x_posit, y_posit), (self.host_planet.x,
                                                                       self.host_planet.y), 1)
 
-    def update_position(self, move_x, move_y):
+    def translate_body(self, move_x, move_y):
         """
         updates the position of the moons. gravity is not taken into account
         :return: None
@@ -337,8 +378,8 @@ class Moon:
         :param scale: scale
         :return: None
         """
-        self.radius *= scale
-        self.orbital_radius *= scale
+        self.radius = self.radius_initial * scale
+        self.orbital_radius = self.orbital_radius_initial * scale
 
 
     def reset_radius(self):
